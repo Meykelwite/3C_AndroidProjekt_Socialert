@@ -6,7 +6,7 @@ Mit der App "Socialert" ist es möglich, SMS sowie Emails automatisch zu einem b
 
 ## Grafische Mockups
 
-skip
+![](assets/mockup/User%20Login.png) ![](assets/mockup/User%20Register.png) ![](assets/mockup/Navigation%20Drawer.png) ![](assets/mockup/Tasks.png) ![](assets/mockup/Dialog,%20wenn%20FloatingActionButton%20geklickt%20wird.png) ![](assets/mockup/Neuer%20Task%20am%20Beispiel%20SMS%20(eventuell%20auch%20mit%20Dialog%20anstatt%20Acitivty).png) ![](assets/mockup/Preferences.png)
 
 ## Anbindung an die [Neue Google-Anmelde-API](https://developers.google.com/identity/sign-in/android/sign-in-identity)
 
