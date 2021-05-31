@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/group1"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_schedule_task"
+            android:title="@string/navigation_drawer_title_1" />
+        <item
+            android:id="@+id/nav_auto_reply"
+            android:title="@string/navigation_drawer_title_2" />
+        <item
+            android:id="@+id/nav_preferences"
+            android:icon="@android:drawable/ic_menu_preferences"
+            android:title="@string/navigation_drawer_preferences" />
+    </group>
+</menu>

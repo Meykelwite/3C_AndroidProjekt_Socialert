@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Socialert</string>
+    <string name="navigation_drawer_title_1">Task planen</string>
+    <string name="navigation_drawer_title_2">Automatische Antwort</string>
+    <string name="navigation_drawer_preferences">Einstellungen</string>
+
+    <string name="menu_schedule_task">Task planen</string>
+    <string name="menu_auto_reply">Automatische Antwort</string>
+    <string name="menu_preferences">Einstellungen</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <string name="hello_blank_fragment">Hallo grias eich i bins de Christa Wieses!</string>
 </resources>
