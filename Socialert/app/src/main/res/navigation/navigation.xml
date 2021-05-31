@@ -20,7 +20,7 @@
     <activity
         android:id="@+id/nav_preferences"
         android:name="net.htlgrieskirchen.pos.dreic.socialert.PreferenceActivity"
-        tools:layout="@layout/preferences"
+        tools:layout="@xml/preferences"
         android:label="@string/menu_preferences" />
 
 </navigation>
