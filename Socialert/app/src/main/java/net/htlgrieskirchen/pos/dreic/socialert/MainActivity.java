@@ -36,16 +36,16 @@ public class MainActivity extends AppCompatActivity implements TaskMasterFragmen
     private AppBarConfiguration mAppBarConfiguration;
 
     // Observer Pattern
-    private TaskDetailFragment taskDetailFragment;
     private boolean showRight = false;
+
+    //Save instance state
+    private String selectedTask;
+    public static final String STATE_TASK = "task_state";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        taskDetailFragment = (TaskDetailFragment) getSupportFragmentManager().findFragmentById(R.id.fragDetail);
-        showRight = taskDetailFragment != null && taskDetailFragment.isInLayout();
 
         // Toolbar = "new version" of ActionBar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements TaskMasterFragmen
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+        int orientation = getResources().getConfiguration().orientation;
+        showRight = orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 
     @Override
@@ -81,16 +83,68 @@ public class MainActivity extends AppCompatActivity implements TaskMasterFragmen
 
     @Override
     public void onSelectionChanged(String task) {
-        if (showRight) { // TODO !!
-            taskDetailFragment.show(task);
+        this.selectedTask = task;
+        if (showRight) {
+                NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+                if (isScheduleTask(navHostFragment)) {
+                    ScheduleTaskFragment scheduleTaskFragment = (ScheduleTaskFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
+                    TaskDetailFragment taskDetailFragment = (TaskDetailFragment) scheduleTaskFragment.getChildFragmentManager().getFragments().get(1); // only way to get the TaskDetailFragment??
+                    taskDetailFragment.show(task);
+                } else {
+                    AutoReplyTaskFragment autoReplyTaskFragment = (AutoReplyTaskFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
+                    TaskDetailFragment taskDetailFragment = (TaskDetailFragment) autoReplyTaskFragment.getChildFragmentManager().getFragments().get(1);
+                    taskDetailFragment.show(task);
+                }
         } else {
             startRightActivity(task);
         }
+    }
+
+    private boolean isScheduleTask(NavHostFragment navHostFragment) {
+        try {
+            ScheduleTaskFragment scheduleTaskFragment = (ScheduleTaskFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
+        } catch (ClassCastException e) {
+            return false;
+        }
+        return true;
     }
 
     private void startRightActivity(String task) {
         Intent intent = new Intent(this, TaskDetailActivity.class);
         intent.putExtra("task", task);
         startActivity(intent);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
+        if (selectedTask != null) {
+            savedInstanceState.putSerializable(STATE_TASK, selectedTask);
+        }
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            selectedTask = (String) savedInstanceState.getSerializable(STATE_TASK);
+            if (selectedTask != null) {
+                if (showRight) {
+                    NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+                    if (isScheduleTask(navHostFragment)) {
+                        ScheduleTaskFragment scheduleTaskFragment = (ScheduleTaskFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
+                        TaskDetailFragment taskDetailFragment = (TaskDetailFragment) scheduleTaskFragment.getChildFragmentManager().getFragments().get(1); // only way to get the TaskDetailFragment??
+                        taskDetailFragment.show(selectedTask);
+                    } else {
+                        AutoReplyTaskFragment autoReplyTaskFragment = (AutoReplyTaskFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
+                        TaskDetailFragment taskDetailFragment = (TaskDetailFragment) autoReplyTaskFragment.getChildFragmentManager().getFragments().get(1);
+                        taskDetailFragment.show(selectedTask);
+                    }
+                } else {
+                    startRightActivity(selectedTask);
+                }
+            }
+        }
     }
 }
