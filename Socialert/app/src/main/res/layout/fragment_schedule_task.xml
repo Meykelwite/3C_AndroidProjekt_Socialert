@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ScheduleTaskFragment">
+    android:orientation="horizontal"
+    tools:context=".MainActivity">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
+    <fragment
+        android:id="@+id/fragMaster"
+        android:name="net.htlgrieskirchen.pos.dreic.socialert.TaskMasterFragment"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:text="schedule task" />
+        android:layout_weight="1" />
 
-</FrameLayout>
+    <fragment
+        android:id="@+id/fragDetail"
+        android:name="net.htlgrieskirchen.pos.dreic.socialert.TaskDetailFragment"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+</LinearLayout>

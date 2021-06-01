@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/nav_schedule_task"
         android:name="net.htlgrieskirchen.pos.dreic.socialert.ScheduleTaskFragment"
-        tools:layout="@layout/fragment_auto_reply_task"
+        tools:layout="@layout/fragment_schedule_task"
         android:label="@string/menu_schedule_task" />
 
     <fragment
@@ -17,9 +17,9 @@
         tools:layout="@layout/fragment_auto_reply_task"
         android:label="@string/menu_auto_reply" />
 
-    <activity
+    <fragment
         android:id="@+id/nav_preferences"
-        android:name="net.htlgrieskirchen.pos.dreic.socialert.PreferenceActivity"
+        android:name="net.htlgrieskirchen.pos.dreic.socialert.PreferenceFragment"
         tools:layout="@xml/preferences"
         android:label="@string/menu_preferences" />
 

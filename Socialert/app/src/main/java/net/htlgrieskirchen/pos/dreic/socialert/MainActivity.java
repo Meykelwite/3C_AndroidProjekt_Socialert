@@ -6,12 +6,16 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -19,20 +23,29 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TaskMasterFragment.OnSelectionChangedListener {
 
     private AppBarConfiguration mAppBarConfiguration;
+
+    // Observer Pattern
+    private TaskDetailFragment taskDetailFragment;
+    private boolean showRight = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        taskDetailFragment = (TaskDetailFragment) getSupportFragmentManager().findFragmentById(R.id.fragDetail);
+        showRight = taskDetailFragment != null && taskDetailFragment.isInLayout();
 
         // Toolbar = "new version" of ActionBar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -57,9 +70,6 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-
-
-
     }
 
     @Override
@@ -70,14 +80,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        //finish
-        return super.onCreateOptionsMenu(menu);
+    public void onSelectionChanged(String task) {
+        if (showRight) { // TODO !!
+            taskDetailFragment.show(task);
+        } else {
+            startRightActivity(task);
+        }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //finish
-        return super.onOptionsItemSelected(item);
+    private void startRightActivity(String task) {
+        Intent intent = new Intent(this, TaskDetailActivity.class);
+        intent.putExtra("task", task);
+        startActivity(intent);
     }
 }

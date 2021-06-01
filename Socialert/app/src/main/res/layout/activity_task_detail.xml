@@ -4,21 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    tools:context=".MainActivity">
-
-    <fragment
-        android:id="@+id/fragMaster"
-        android:name="net.htlgrieskirchen.pos.dreic.socialert.TaskMasterFragment"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
+    android:orientation="vertical"
+    tools:context=".TaskDetailActivity">
 
     <fragment
         android:id="@+id/fragDetail"
         android:name="net.htlgrieskirchen.pos.dreic.socialert.TaskDetailFragment"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>
