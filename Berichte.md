@@ -48,5 +48,5 @@ Es läuft alles planmäßig.
 Die folgenden Arbeitspakete:
 
 * Tabs
-* RecyclerView (für die Tasks) und Adapter
-* Dark Mode und Farben
+* ListView (für die Tasks) und Adapter
+* Activity, die aufgerufen wird wenn der FloatingActionButton betätigt wird (neuer Task)
