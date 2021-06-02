@@ -10,4 +10,6 @@
     <string name="title_activity_settings">SettingsActivity</string>
 
     <string name="hello_blank_fragment">Hallo grias eich i bins de Christa Wieses!</string>
+    <string name="text_tab_ongoing_tasks">Laufende Tasks</string>
+    <string name="text_tab_completed_tasks">Abgeschlossene Tasks</string>
 </resources>
