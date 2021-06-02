@@ -26,13 +26,17 @@ import com.google.android.material.snackbar.Snackbar;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements TaskMasterFragment.OnSelectionChangedListener {
+public class MainActivity extends AppCompatActivity implements TaskMasterFragment.OnSelectionChangedListener, View.OnClickListener {
 
+    private static final int RQ_PREFERENCES = 12345;
     private AppBarConfiguration mAppBarConfiguration;
 
     // Observer Pattern
@@ -51,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements TaskMasterFragmen
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         NavigationView navigationView = findViewById(R.id.navigation_view);
+        Button img_btn_preferences = findViewById(R.id.nav_preferences);
+        img_btn_preferences.setOnClickListener(this);
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,16 +92,16 @@ public class MainActivity extends AppCompatActivity implements TaskMasterFragmen
     public void onSelectionChanged(String task) {
         this.selectedTask = task;
         if (showRight) {
-                NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-                if (isScheduleTask(navHostFragment)) {
-                    ScheduleTaskFragment scheduleTaskFragment = (ScheduleTaskFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
-                    TaskDetailFragment taskDetailFragment = (TaskDetailFragment) scheduleTaskFragment.getChildFragmentManager().getFragments().get(1); // only way to get the TaskDetailFragment??
-                    taskDetailFragment.show(task);
-                } else {
-                    AutoReplyTaskFragment autoReplyTaskFragment = (AutoReplyTaskFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
-                    TaskDetailFragment taskDetailFragment = (TaskDetailFragment) autoReplyTaskFragment.getChildFragmentManager().getFragments().get(1);
-                    taskDetailFragment.show(task);
-                }
+            NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+            if (isScheduleTask(navHostFragment)) {
+                ScheduleTaskFragment scheduleTaskFragment = (ScheduleTaskFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
+                TaskDetailFragment taskDetailFragment = (TaskDetailFragment) scheduleTaskFragment.getChildFragmentManager().getFragments().get(1); // only way to get the TaskDetailFragment??
+                taskDetailFragment.show(task);
+            } else {
+                AutoReplyTaskFragment autoReplyTaskFragment = (AutoReplyTaskFragment) navHostFragment.getChildFragmentManager().getFragments().get(0);
+                TaskDetailFragment taskDetailFragment = (TaskDetailFragment) autoReplyTaskFragment.getChildFragmentManager().getFragments().get(1);
+                taskDetailFragment.show(task);
+            }
         } else {
             startRightActivity(task);
         }
@@ -146,5 +153,17 @@ public class MainActivity extends AppCompatActivity implements TaskMasterFragmen
                 }
             }
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.nav_preferences:
+                Intent intent = new Intent(this, PreferenceActivity.class);
+                startActivityForResult(intent, RQ_PREFERENCES);
+                break;
+        }
+
+
     }
 }

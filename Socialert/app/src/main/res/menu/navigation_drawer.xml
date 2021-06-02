@@ -5,13 +5,12 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_schedule_task"
+            android:icon="@drawable/ic_baseline_schedule_24"
             android:title="@string/navigation_drawer_title_1" />
         <item
             android:id="@+id/nav_auto_reply"
+            android:icon="@drawable/ic_baseline_reply_24"
             android:title="@string/navigation_drawer_title_2" />
-        <item
-            android:id="@+id/nav_preferences"
-            android:icon="@android:drawable/ic_menu_preferences"
-            android:title="@string/navigation_drawer_preferences" />
+
     </group>
 </menu>
