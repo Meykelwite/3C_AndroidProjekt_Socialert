@@ -1,4 +1,4 @@
-package net.htlgrieskirchen.pos.dreic.socialert;
+package net.htlgrieskirchen.pos.dreic.socialert.schedule_task;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,12 +8,14 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-public class TaskDetailActivity extends AppCompatActivity {
+import net.htlgrieskirchen.pos.dreic.socialert.R;
+
+public class DetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_task_detail);
+        setContentView(R.layout.activity_task_detail_schedule_task);
 
         int orientation = getResources().getConfiguration().orientation;
         if (orientation != Configuration.ORIENTATION_PORTRAIT) {
@@ -24,7 +26,7 @@ public class TaskDetailActivity extends AppCompatActivity {
         if (intent == null) {
             return;
         }
-        TaskDetailFragment detailFragment = (TaskDetailFragment) getSupportFragmentManager().findFragmentById(R.id.fragDetail);
+        DetailFragment detailFragment = (DetailFragment) getSupportFragmentManager().findFragmentById(R.id.fragDetail);
         String task = intent.getStringExtra("task");
 
         getSupportActionBar().setTitle(task);
@@ -42,4 +44,5 @@ public class TaskDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 }

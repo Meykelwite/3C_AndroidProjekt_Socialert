@@ -9,7 +9,16 @@
     <string name="menu_preferences">Einstellungen</string>
     <string name="title_activity_settings">SettingsActivity</string>
 
-    <string name="hello_blank_fragment">Hallo grias eich i bins de Christa Wieses!</string>
+    <string name="hello_blank_fragment">dummy</string>
     <string name="text_tab_ongoing_tasks">Laufende Tasks</string>
     <string name="text_tab_completed_tasks">Abgeschlossene Tasks</string>
+    <string name="new_task_dialog_title">Aktion wählen</string>
+    <string name="title_activity_test">TestActivity</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
+    <string name="navigation_drawer_open">Navigation Drawer öffnen</string>
+    <string name="navigation_drawer_close">Navigation Drawer schließen</string>
 </resources>

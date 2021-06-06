@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.htlgrieskirchen.pos.dreic.socialert">
 
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,9 +10,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Socialert">
-        <activity android:name=".TaskDetailActivity"></activity>
+
+        <activity android:name=".schedule_task.DetailActivity" />
+        <activity android:name=".auto_reply_task.DetailActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name=".schedule_task.ScheduleTaskActivity"
             android:theme="@style/Theme.Socialert.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,7 +22,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PreferenceActivity"></activity>
+        <activity android:name=".auto_reply_task.AutoReplyTaskActivity"
+            android:theme="@style/Theme.Socialert.NoActionBar" />
+
+
+        <activity android:name=".PreferenceActivity" />
     </application>
 
 </manifest>

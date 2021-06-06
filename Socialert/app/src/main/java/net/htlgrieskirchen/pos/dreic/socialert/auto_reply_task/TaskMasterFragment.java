@@ -1,11 +1,7 @@
-package net.htlgrieskirchen.pos.dreic.socialert;
+package net.htlgrieskirchen.pos.dreic.socialert.auto_reply_task;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,18 +9,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import androidx.fragment.app.Fragment;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import net.htlgrieskirchen.pos.dreic.socialert.R;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TaskMasterFragment extends Fragment {
 
@@ -52,14 +42,16 @@ public class TaskMasterFragment extends Fragment {
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_task_master, container, false);
+        View view = inflater.inflate(R.layout.fragment_task_master_auto_reply_task, container, false);
         lv_tasks = view.findViewById(R.id.lv_tasks);
 
         tasks.add("Element 1");
         tasks.add("Element 2");
+        tasks.add("Element 3");
 
         adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, tasks);
         lv_tasks.setAdapter(adapter);

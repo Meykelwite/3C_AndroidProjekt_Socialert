@@ -1,20 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
     app:startDestination="@+id/nav_schedule_task">
-
-    <fragment
-        android:id="@+id/nav_schedule_task"
-        android:name="net.htlgrieskirchen.pos.dreic.socialert.ScheduleTaskFragment"
-        tools:layout="@layout/fragment_schedule_task"
-        android:label="@string/menu_schedule_task" />
-
-    <fragment
-        android:id="@+id/nav_auto_reply"
-        android:name="net.htlgrieskirchen.pos.dreic.socialert.AutoReplyTaskFragment"
-        tools:layout="@layout/fragment_auto_reply_task"
-        android:label="@string/menu_auto_reply" />
 
 </navigation>
