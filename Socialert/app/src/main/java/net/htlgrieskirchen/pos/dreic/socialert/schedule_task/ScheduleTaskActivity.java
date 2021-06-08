@@ -25,9 +25,18 @@ import net.htlgrieskirchen.pos.dreic.socialert.BaseActivity;
 import net.htlgrieskirchen.pos.dreic.socialert.R;
 import net.htlgrieskirchen.pos.dreic.socialert.ViewPagerAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFragment.OnSelectionChangedListener {
+    private List<ScheduleTask> tasks = new ArrayList<>();
+
+    // to refresh the shown tasks in the MasterFragment
+    private FragmentRefreshListener fragmentRefreshListenerOngoingTasks;
+    private FragmentRefreshListener fragmentRefreshListenerCompletedTasks;
+
     private static final String STATE_TASK = "taskState";
-    private static String selectedTask;
+    private static ScheduleTask selectedTask;
 
     private ViewPager viewPager;
     private TabLayout tabLayout;
@@ -71,24 +80,20 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
 
         tabLayout.setupWithViewPager(viewPager);
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), 0);
-        pagerAdapter.addFragment(new TabTaskFragment(), getString(R.string.text_tab_ongoing_tasks));
-        pagerAdapter.addFragment(new TabTaskFragment(), getString(R.string.text_tab_completed_tasks));
+        TabTaskFragment ongoingTasksFragment = new TabTaskFragment();
+        Bundle bundle1 = new Bundle();
+        bundle1.putInt("type", 0); // 0 for ongoing tasks
+        ongoingTasksFragment.setArguments(bundle1); //
+        pagerAdapter.addFragment(ongoingTasksFragment, getString(R.string.text_tab_ongoing_tasks));
+        TabTaskFragment completedTasksFragment = new TabTaskFragment();
+        Bundle bundle2 = new Bundle();
+        bundle2.putInt("type", 1); // 1 for completed tasks
+        completedTasksFragment.setArguments(bundle2);
+        pagerAdapter.addFragment(completedTasksFragment, getString(R.string.text_tab_completed_tasks));
         viewPager.setAdapter(pagerAdapter);
 
-        //drawer.addView(view.getRootView(), 0);
         navigationView.setCheckedItem(R.id.nav_schedule_task);
 
-//        FloatingActionButton fab = view.findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Test", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-
-        //Toast.makeText(this, ""+getSupportFragmentManager().getFragments().get(0).getChildFragmentManager().getFragments().get(0).getChildFragmentManager().getFragments().size(), Toast.LENGTH_SHORT).show();
-        //detailFragment = (DetailFragment) get.findFragmentById(R.id.fragDetail);
         int orientation = getResources().getConfiguration().orientation;
         showRight = orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
@@ -133,28 +138,39 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         fab_addSMSTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Show Add SMS Dialog!", Toast.LENGTH_SHORT).show();
+                tasks.add(new SmsTask("SMS", "Juni", "0664"));
+                refresh();
             }
         });
 
         fab_addEmailTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Email Added", Toast.LENGTH_SHORT).show();
+                tasks.add(new EmailTask("Email", "Juni", "johndoe@fortnite.com"));
+                refresh();
             }
         });
 
 
     }
 
-    private void startRightActivity(String task) {
+    private void refresh() {
+        if (getFragmentRefreshListenerCompletedTasks() != null) {
+            getFragmentRefreshListenerCompletedTasks().onRefresh();
+        }
+        if (getFragmentRefreshListenerOngoingTasks() != null) {
+            getFragmentRefreshListenerOngoingTasks().onRefresh();
+        }
+    }
+
+    private void startRightActivity(ScheduleTask task) {
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra("task", task);
         startActivity(intent);
     }
 
     @Override
-    public void onSelectionChanged(String task) {
+    public void onSelectionChanged(ScheduleTask task) {
         this.selectedTask = task;
         if (showRight) {
             ViewPager viewPager = findViewById(R.id.view_pager);
@@ -179,7 +195,7 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
     public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
-            selectedTask = savedInstanceState.getString(STATE_TASK);
+            selectedTask = (ScheduleTask) savedInstanceState.getSerializable(STATE_TASK);
             if (selectedTask != null) {
                 if (showRight) {
                     ViewPager viewPager = findViewById(R.id.view_pager);
@@ -209,4 +225,33 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
     }
 
 
+    // for activity fragment commuinication
+    // https://www.legendblogs.com/refresh-a-fragment-list-from-activity
+    public interface FragmentRefreshListener {
+        void onRefresh();
+    }
+
+    public FragmentRefreshListener getFragmentRefreshListenerOngoingTasks() {
+        return fragmentRefreshListenerOngoingTasks;
+    }
+
+    public void setFragmentRefreshListenerOngoingTasks(FragmentRefreshListener fragmentRefreshListenerOngoingTasks) {
+        this.fragmentRefreshListenerOngoingTasks = fragmentRefreshListenerOngoingTasks;
+    }
+
+    public FragmentRefreshListener getFragmentRefreshListenerCompletedTasks() {
+        return fragmentRefreshListenerCompletedTasks;
+    }
+
+    public void setFragmentRefreshListenerCompletedTasks(FragmentRefreshListener fragmentRefreshListenerCompletedTasks) {
+        this.fragmentRefreshListenerCompletedTasks = fragmentRefreshListenerCompletedTasks;
+    }
+
+    public ViewPager getViewPager() {
+        return viewPager;
+    }
+
+    public List<ScheduleTask> getTasks() {
+        return tasks;
+    }
 }

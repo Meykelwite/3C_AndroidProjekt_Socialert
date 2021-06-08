@@ -17,9 +17,10 @@ import net.htlgrieskirchen.pos.dreic.socialert.R;
 import java.util.List;
 
 
-public class TabTaskFragment extends Fragment {
+public class
+TabTaskFragment extends Fragment {
 
-
+    private int type;
 
     public TabTaskFragment() {
         // Required empty public constructor
@@ -35,7 +36,9 @@ public class TabTaskFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        if (getArguments() != null) {
+            type = getArguments().getInt("type");
+        }
     }
 
     @Override
@@ -44,5 +47,9 @@ public class TabTaskFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_tab_task_schedule_task, container, false);
 
         return view;
+    }
+
+    public int getType() {
+        return type;
     }
 }

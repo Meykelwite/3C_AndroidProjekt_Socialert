@@ -10,6 +10,9 @@ import android.view.MenuItem;
 
 import net.htlgrieskirchen.pos.dreic.socialert.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DetailActivity extends AppCompatActivity {
 
     @Override
@@ -27,9 +30,8 @@ public class DetailActivity extends AppCompatActivity {
             return;
         }
         DetailFragment detailFragment = (DetailFragment) getSupportFragmentManager().findFragmentById(R.id.fragDetail);
-        String task = intent.getStringExtra("task");
-
-        getSupportActionBar().setTitle(task);
+        ScheduleTask task = (ScheduleTask) intent.getSerializableExtra("task");
+        getSupportActionBar().setTitle("Details");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         detailFragment.show(task);
