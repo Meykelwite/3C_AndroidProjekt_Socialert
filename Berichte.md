@@ -1,5 +1,34 @@
 # Wöchentliche Berichte / Resümees
 
+## Woche vom 2. Juni 2021
+
+### Was ist gut gelaufen?
+
+Keine allzu großen Verzüge im Zeitplan.
+
+### Welche Arbeitspakete wurden erledigt?
+
+* Tabs
+* ListView (für die Tasks) und Adapter
+
+### Welche Probleme sind aufgetreten?
+
+Die ganze Projektstruktur wurde geändert, was nicht eingeplant war und daher mehr Zeit als erwartet in Anspruch genommen hat. Auch die Implementierung, um die Fragments refreshen zu können, funktionierte nicht auf Anhieb.
+
+### Wie liegt die Gruppe im Zeitplan?
+
+Kleine Abweichungen vom Plan.
+
+### Was wird nächste Woche umgesetzt
+
+Die folgenden Arbeitspakete:
+
+* Dialog, der aufgerufen wird, wenn der FloatingActionButton betätigt wird (neuer Task). Dabei soll u.a. auch auf die gespeicherten Kontakte zugegriffen werden.
+* Automatisch SMS versenden mit Location
+* Anbindung an Gmail-API
+
+***
+
 ## Woche vom 26. Mai 2021
 
 ### Was ist gut gelaufen?
