@@ -6,10 +6,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -18,12 +16,14 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import net.htlgrieskirchen.pos.dreic.socialert.BaseActivity;
 import net.htlgrieskirchen.pos.dreic.socialert.R;
 import net.htlgrieskirchen.pos.dreic.socialert.ViewPagerAdapter;
+import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email.EmailTask;
+import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsDialogFragment;
+import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -138,7 +138,8 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         fab_addSMSTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tasks.add(new SmsTask("SMS", "Juni", "0664"));
+                //tasks.add(new SmsTask("SMS", "Juni", "0664"));
+                SmsDialogFragment.display(getSupportFragmentManager());
                 refresh();
             }
         });

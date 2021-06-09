@@ -11,6 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.htlgrieskirchen.pos.dreic.socialert.R;
+import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email.EmailTask;
+import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 
 import java.io.Serializable;
 

@@ -1,4 +1,6 @@
-package net.htlgrieskirchen.pos.dreic.socialert.schedule_task;
+package net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms;
+
+import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTask;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
