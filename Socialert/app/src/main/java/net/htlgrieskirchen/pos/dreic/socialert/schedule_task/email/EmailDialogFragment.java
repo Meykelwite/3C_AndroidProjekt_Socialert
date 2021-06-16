@@ -172,9 +172,17 @@ public class EmailDialogFragment extends DialogFragment {
             public void onClick(View v) {
                 if (isAddEmailIcon) { // TextField is not empty!
                     String email = et_addContact.getText().toString();
-                    createChip(email);
-                    addReceiver(email, "");
-                    et_addContact.getText().clear();
+                    String regex = "[A-Za-z0-9!#$%&'\\*\\+\\-\\/=?^_`{|}~]([A-Za-z0-9\\.!#$%&'\\*\\+\\-\\/=?^_`{|}~]+)?[A-Za-z0-9!#$%&'\\*\\+\\-\\/=?^_`{|}~]@[A-Za-z0-9\\.!#$%&'\\*\\+\\-\\/=?^_`{|}~]{2,}\\.[A-Za-z]{2,6}";
+                    if(email.matches(regex))
+                    {
+                        createChip(email);
+                        addReceiver(email, "");
+                        et_addContact.getText().clear();
+                    }
+                    else
+                    {
+                        Toast.makeText(getContext(), "Ungültige E-Mail Adresse!", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
                     pickContact.setType(ContactsContract.CommonDataKinds.Email.CONTENT_TYPE);
@@ -283,8 +291,8 @@ public class EmailDialogFragment extends DialogFragment {
                 } else {
                     LocalDateTime dateTime = LocalDateTime.of(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), timePicker.getHour(), timePicker.getMinute());
                     EmailTask newTask = new EmailTask(et_message.getText().toString(), dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")), receivers);
-                    newTask.setCompleted(task.isCompleted());
                     if (edit) {
+                        newTask.setCompleted(task.isCompleted());
                         if (task.equals(newTask)) {
                             Toast.makeText(getContext(), "Sie haben keine Änderungen vorgenommen!", Toast.LENGTH_SHORT).show();
                         } else {

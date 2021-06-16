@@ -175,9 +175,17 @@ public class SmsDialogFragment extends DialogFragment {
             public void onClick(View v) {
                 if (isAddNumberIcon) { // TextField is not empty!
                     String phoneNumber = et_addContact.getText().toString();
-                    createChip(phoneNumber);
-                    addReceiver(phoneNumber, "");
-                    et_addContact.getText().clear();
+                    String regex = "[^a-zA-Z]{3,}";
+                    if(phoneNumber.matches(regex))
+                    {
+                        createChip(phoneNumber);
+                        addReceiver(phoneNumber, "");
+                        et_addContact.getText().clear();
+                    }
+                    else
+                    {
+                        Toast.makeText(getContext(), "Ungültige Telefonnummer!", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
                     pickContact.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
