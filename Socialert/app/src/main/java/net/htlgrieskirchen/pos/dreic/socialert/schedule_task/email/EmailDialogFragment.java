@@ -283,6 +283,7 @@ public class EmailDialogFragment extends DialogFragment {
                 } else {
                     LocalDateTime dateTime = LocalDateTime.of(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), timePicker.getHour(), timePicker.getMinute());
                     EmailTask newTask = new EmailTask(et_message.getText().toString(), dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")), receivers);
+                    newTask.setCompleted(task.isCompleted());
                     if (edit) {
                         if (task.equals(newTask)) {
                             Toast.makeText(getContext(), "Sie haben keine Änderungen vorgenommen!", Toast.LENGTH_SHORT).show();

@@ -291,6 +291,7 @@ public class SmsDialogFragment extends DialogFragment {
                     LocalDateTime dateTime = LocalDateTime.of(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), timePicker.getHour(), timePicker.getMinute());
                     SmsTask newTask = new SmsTask(et_message.getText().toString(), dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")), receivers);
                     if (edit) {
+                        newTask.setCompleted(task.isCompleted());
                         if (task.equals(newTask)) {
                             Toast.makeText(getContext(), "Sie haben keine Änderungen vorgenommen!", Toast.LENGTH_SHORT).show();
                         } else {

@@ -189,9 +189,11 @@ public class TaskMasterFragment extends Fragment {
                     switch (task.getTask_type()) {
                         case SMS:
                             newTask = new SmsTask(task.getMessage(), task.getTime(), task.getReceivers());
+                            newTask.setCompleted(task.isCompleted());
                             break;
                         case EMAIL:
                             newTask = new EmailTask(task.getMessage(), task.getTime(), task.getReceivers());
+                            newTask.setCompleted(task.isCompleted());
                             break;
                     }
                     taskManager.addTask(newTask);
