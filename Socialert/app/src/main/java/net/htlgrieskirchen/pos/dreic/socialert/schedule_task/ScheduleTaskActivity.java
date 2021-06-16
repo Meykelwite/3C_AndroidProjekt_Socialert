@@ -1,6 +1,8 @@
 package net.htlgrieskirchen.pos.dreic.socialert.schedule_task;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,9 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.viewpager.widget.ViewPager;
 
@@ -22,6 +27,7 @@ import net.htlgrieskirchen.pos.dreic.socialert.BaseActivity;
 import net.htlgrieskirchen.pos.dreic.socialert.R;
 import net.htlgrieskirchen.pos.dreic.socialert.ViewPagerAdapter;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email.EmailTask;
+import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SendSMS;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsDialogFragment;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 
@@ -30,6 +36,12 @@ import java.util.List;
 
 public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFragment.OnSelectionChangedListener {
     private List<ScheduleTask> tasks = new ArrayList<>();
+
+    //send automatic SMS
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
+    private static final SendSMS sendSMS = new SendSMS();
+    String phoneNo;
+    String message;
 
     // to refresh the shown tasks in the MasterFragment
     private FragmentRefreshListener fragmentRefreshListenerOngoingTasks;
@@ -138,8 +150,10 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         fab_addSMSTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //tasks.add(new SmsTask("SMS", "Juni", "0664"));
-                SmsDialogFragment.display(getSupportFragmentManager());
+                tasks.add(new SmsTask("SMS", "Juni", "0664"));
+                phoneNo = "069913106148";
+                message = "du stinkst";
+                checkPermission();
                 refresh();
             }
         });
@@ -151,8 +165,34 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
                 refresh();
             }
         });
+    }
 
+    @Override
+    public void onRequestPermissionsResult( int requestCode,
+                                            String[] permissions,
+                                            int[] grantResults ) {
+        super.onRequestPermissionsResult(requestCode,
+                permissions,
+                grantResults);
+        if (requestCode==MY_PERMISSIONS_REQUEST_SEND_SMS) {
+            if (grantResults.length>0 &&
+                    grantResults[0]!=PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getApplicationContext(), "Permission required!",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
+    public void checkPermission()
+    {
+        if (checkSelfPermission(Manifest.permission.SEND_SMS)
+                !=PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_SEND_SMS);
+        }
+        else
+        {
+            sendSMS.sendSMSMessage("069913106148", "Somebody toucha ma spaghett");
+        }
     }
 
     private void refresh() {
