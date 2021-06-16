@@ -4,20 +4,13 @@ import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTask;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class EmailTask extends ScheduleTask implements Serializable {
-    private String email;
 
-    public EmailTask(String message, String time, String email) {
-        super(message, time);
-        this.email = email;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public EmailTask(String message, String time, HashMap<String, String> receivers) {
+        super(message, time, Task_Type.EMAIL, receivers);
     }
 }

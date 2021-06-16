@@ -1,5 +1,39 @@
 # Wöchentliche Berichte / Resümees
 
+## Woche vom 9. Juni 2021
+
+### Was ist gut gelaufen?
+
+Layout nun vollständig. Vorraussichtlich werden wir fertig.
+
+### Welche Arbeitspakete wurden erledigt?
+
+* Dialog, der aufgerufen wird, wenn der FloatingActionButton betätigt wird (neuer Task)
+
+### Welche Probleme sind aufgetreten?
+
+Die Arbeitspakete 
+* Automatisch SMS versenden mit Location und
+* Anbindung an Gmail-API
+
+wurden nicht fertiggestellt.
+
+### Wie liegt die Gruppe im Zeitplan?
+
+siehe Probleme. Abweichungen vom Plan, aber wir werden es schaffen.
+
+### Was wird nächste Woche umgesetzt
+
+Die folgenden Arbeitspakete:
+
+* Automatisch SMS versenden mit Location fertigstellen
+* Anbindung an Gmail-API fertigstellen
+* Alarm Manager
+* Automatisch Antworten für SMS
+* Notification Service
+
+***
+
 ## Woche vom 2. Juni 2021
 
 ### Was ist gut gelaufen?

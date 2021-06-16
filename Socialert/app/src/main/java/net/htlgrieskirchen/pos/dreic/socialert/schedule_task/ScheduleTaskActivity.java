@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -13,12 +15,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -26,16 +30,21 @@ import com.google.android.material.tabs.TabLayout;
 import net.htlgrieskirchen.pos.dreic.socialert.BaseActivity;
 import net.htlgrieskirchen.pos.dreic.socialert.R;
 import net.htlgrieskirchen.pos.dreic.socialert.ViewPagerAdapter;
+import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email.EmailDialogFragment;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email.EmailTask;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SendSMS;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsDialogFragment;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFragment.OnSelectionChangedListener {
-    private List<ScheduleTask> tasks = new ArrayList<>();
+public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFragment.OnSelectionChangedListener, TaskListener {
+    private static final int PICK_CONTACT = 123456;
+
+    private ScheduleTaskManager taskManager;
 
     //send automatic SMS
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
@@ -78,6 +87,9 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
 
         getSupportActionBar().setTitle(R.string.navigation_drawer_title_1);
 
+        // init TaskManager
+        taskManager = new ScheduleTaskManager(this);
+
         fab_parent = view.findViewById(R.id.add_fab);
         fab_addSMSTask = view.findViewById(R.id.add_sms_task);
         fab_addEmailTask = view.findViewById(R.id.add_email_task);
@@ -88,6 +100,23 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         setUpFabButtons();
 
         viewPager = view.findViewById(R.id.view_pager);
+//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//                refresh();
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//
+//            }
+//        });
+
         tabLayout = view.findViewById(R.id.tab_layout);
 
         tabLayout.setupWithViewPager(viewPager);
@@ -103,6 +132,11 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         completedTasksFragment.setArguments(bundle2);
         pagerAdapter.addFragment(completedTasksFragment, getString(R.string.text_tab_completed_tasks));
         viewPager.setAdapter(pagerAdapter);
+
+        //set the icons
+        //tabLayout.getTabAt(0).setIcon(R.drawable.android);
+        //tabLayout.getTabAt(1).setIcon(R.drawable.google_play);
+
 
         navigationView.setCheckedItem(R.id.nav_schedule_task);
 
@@ -150,10 +184,9 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         fab_addSMSTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tasks.add(new SmsTask("SMS", "Juni", "0664"));
-                phoneNo = "069913106148";
-                message = "du stinkst";
-                checkPermission();
+                // tasks.add(new SmsTask("SMS", "Juni", "0664"));
+                SmsDialogFragment.display(getSupportFragmentManager());
+                //registerForActivityResult(ActivityResultContracts.PickContact);
                 refresh();
             }
         });
@@ -161,7 +194,8 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         fab_addEmailTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tasks.add(new EmailTask("Email", "Juni", "johndoe@fortnite.com"));
+                //tasks.add(new EmailTask("Email", "Juni", "johndoe@fortnite.com"));
+                EmailDialogFragment.display(getSupportFragmentManager());
                 refresh();
             }
         });
@@ -195,7 +229,16 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         }
     }
 
-    private void refresh() {
+    private void addTask(ScheduleTask task) {
+        taskManager.addTask(task);
+        refresh();
+    }
+
+    public TabLayout getTabLayout() {
+        return tabLayout;
+    }
+
+    public void refresh() {
         if (getFragmentRefreshListenerCompletedTasks() != null) {
             getFragmentRefreshListenerCompletedTasks().onRefresh();
         }
@@ -265,6 +308,19 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         }
     }
 
+    // for Sms Dialogfragment
+    @Override
+    public void onAddTask(ScheduleTask task) {
+        addTask(task);
+        refresh();
+    }
+
+    @Override
+    public void onEditTask(int position, ScheduleTask newTask) {
+        taskManager.setTask(position, newTask);
+        refresh();
+    }
+
 
     // for activity fragment commuinication
     // https://www.legendblogs.com/refresh-a-fragment-list-from-activity
@@ -292,7 +348,9 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         return viewPager;
     }
 
-    public List<ScheduleTask> getTasks() {
-        return tasks;
+    public ScheduleTaskManager getTaskManager() {
+        return taskManager;
     }
+
+
 }
