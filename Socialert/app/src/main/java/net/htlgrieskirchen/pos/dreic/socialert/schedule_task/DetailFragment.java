@@ -7,7 +7,9 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import net.htlgrieskirchen.pos.dreic.socialert.R;
@@ -17,12 +19,17 @@ import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 import java.io.Serializable;
 
 public class DetailFragment extends Fragment implements Serializable {
-    private TextView tv_message;
-    private TextView tv_time;
-    private TextView tv_phone_number;
-    private TextView tv_email;
-    private LinearLayout linearLayout_phone_number;
-    private LinearLayout linearLayout_email;
+    private LinearLayout linearLayout;
+
+    // private TextView tv_details_receivers;
+    private ListView lv_receivers;
+
+    // private TextView tv_message_content;
+    private TextView tv_details_message;
+
+    // private TextView tv_time;
+    private TextView tv_details_time;
+
 
     public DetailFragment() {
         // Required empty public constructor
@@ -38,31 +45,22 @@ public class DetailFragment extends Fragment implements Serializable {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_task_detail_schedule_task, container, false);
-        tv_message = view.findViewById(R.id.tv_message);
-        tv_time = view.findViewById(R.id.tv_time);
-        tv_phone_number = view.findViewById(R.id.tv_phone_number);
-        tv_email = view.findViewById(R.id.tv_email);
-        linearLayout_phone_number = view.findViewById(R.id.linearLayout_phone_number);
-        linearLayout_email = view.findViewById(R.id.linearLayout_email);
-
+        linearLayout = view.findViewById(R.id.linearLayout);
+        lv_receivers = view.findViewById(R.id.lv_receivers);
+        tv_details_message = view.findViewById(R.id.tv_details_message);
+        tv_details_time = view.findViewById(R.id.tv_details_time);
 
         return view;
     }
 
     public void show(ScheduleTask task) {
-        tv_message.setText(task.getMessage());
-        tv_time.setText(task.getTime());
+        linearLayout.setVisibility(View.VISIBLE);
 
-        if (task instanceof SmsTask) {
-            linearLayout_email.setVisibility(View.GONE);
-            linearLayout_phone_number.setVisibility(View.VISIBLE);
-            tv_phone_number.setText(((SmsTask) task).getPhoneNumber());
-        } else if (task instanceof EmailTask) {
-            linearLayout_phone_number.setVisibility(View.GONE);
-            linearLayout_email.setVisibility(View.VISIBLE);
-            tv_email.setText(((EmailTask) task).getEmail());
+        ReceiversAdapter receiversAdapter = new ReceiversAdapter(getContext(), R.layout.list_receivers, task.getReceivers());
+        lv_receivers.setAdapter(receiversAdapter);
 
-        }
+        tv_details_message.setText(task.getMessage());
 
+        tv_details_time.setText(task.getTime());
     }
 }

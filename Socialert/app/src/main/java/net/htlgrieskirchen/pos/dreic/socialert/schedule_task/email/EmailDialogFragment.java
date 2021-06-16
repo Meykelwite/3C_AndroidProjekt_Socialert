@@ -1,4 +1,4 @@
-package net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms;
+package net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -31,10 +31,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
 import net.htlgrieskirchen.pos.dreic.socialert.R;
-import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.TaskListener;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTask;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.TaskListener;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.TaskMasterFragment;
+import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -42,9 +42,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 // https://medium.com/alexander-schaefer/implementing-the-new-material-design-full-screen-dialog-for-android-e9dcc712cb38
-public class SmsDialogFragment extends DialogFragment {
-    public static final String TAG = "sms_dialog";
-    private static final int RQ_PICK_CONTACT = 6954;
+public class EmailDialogFragment extends DialogFragment {
+    public static final String TAG = "email_dialog";
+    private static final int RQ_PICK_CONTACT = 7489;
     private MaterialToolbar toolbar;
     private TextInputLayout textField_addContact;
     private TextInputEditText et_addContact;
@@ -54,24 +54,23 @@ public class SmsDialogFragment extends DialogFragment {
     private DatePicker datePicker;
     private TimePicker timePicker;
 
-    // for SmsTask object
+    // for EmailTask object
     private HashMap<String, String> receivers = new HashMap<>();
 
     private ScheduleTask task;
     private int position;
     private boolean edit;
 
-
-    private boolean isAddNumberIcon = false; // true, wenn et_addContact nicht leer
+    private boolean isAddEmailIcon = false; // true, wenn et_addContact nicht leer
 
     // Referenz auf die Activity mithilfe eines Objekts vom Typ OnAddTaskListener
     private TaskListener listener;
 
 
-    public static SmsDialogFragment display(FragmentManager fragmentManager) {
-        SmsDialogFragment smsDialogFragment = new SmsDialogFragment();
-        smsDialogFragment.show(fragmentManager, TAG);
-        return smsDialogFragment;
+    public static EmailDialogFragment display(FragmentManager fragmentManager) {
+        EmailDialogFragment emailDialogFragment = new EmailDialogFragment();
+        emailDialogFragment.show(fragmentManager, TAG);
+        return emailDialogFragment;
     }
 
 //    // https://medium.com/@royanimesh2211/android-dialogfragment-to-activity-communication-fb652112850e
@@ -101,13 +100,12 @@ public class SmsDialogFragment extends DialogFragment {
             position = getArguments().getInt("position");
             edit = true;
         }
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_sms_task_dialog, container, false);
+        View view = inflater.inflate(R.layout.fragment_email_task_dialog, container, false);
 
         toolbar = view.findViewById(R.id.toolbar);
         textField_addContact = view.findViewById(R.id.textField_addContact);
@@ -129,7 +127,7 @@ public class SmsDialogFragment extends DialogFragment {
 
             Map<String, String> receivers = task.getReceivers();
             for (Map.Entry<String, String> entry : receivers.entrySet()) {
-                if (entry.getValue().isEmpty()) { // no name, just phoneNumber
+                if (entry.getValue().isEmpty()) { // no name, just email
                     createChip(entry.getKey());
 
                 } else {
@@ -139,7 +137,6 @@ public class SmsDialogFragment extends DialogFragment {
             }
 
         }
-
 
         return view;
     }
@@ -152,14 +149,14 @@ public class SmsDialogFragment extends DialogFragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!isAddNumberIcon && s.length() > 0) {
+                if (!isAddEmailIcon && s.length() > 0) {
                     textField_addContact.setEndIconDrawable(R.drawable.ic_baseline_person_add_24);
                     textField_addContact.setEndIconContentDescription(R.string.content_description_end_icon_add_number);
-                    isAddNumberIcon = true;
-                } else if (isAddNumberIcon && s.length() == 0) {
+                    isAddEmailIcon = true;
+                } else if (isAddEmailIcon && s.length() == 0) {
                     textField_addContact.setEndIconDrawable(R.drawable.ic_baseline_person_24);
                     textField_addContact.setEndIconContentDescription(R.string.content_description_end_icon);
-                    isAddNumberIcon = false;
+                    isAddEmailIcon = false;
                 }
             }
 
@@ -173,29 +170,27 @@ public class SmsDialogFragment extends DialogFragment {
         textField_addContact.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isAddNumberIcon) { // TextField is not empty!
-                    String phoneNumber = et_addContact.getText().toString();
-                    createChip(phoneNumber);
-                    addReceiver(phoneNumber, "");
+                if (isAddEmailIcon) { // TextField is not empty!
+                    String email = et_addContact.getText().toString();
+                    createChip(email);
+                    addReceiver(email, "");
                     et_addContact.getText().clear();
                 } else {
                     Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-                    pickContact.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
+                    pickContact.setType(ContactsContract.CommonDataKinds.Email.CONTENT_TYPE);
                     startActivityForResult(pickContact, RQ_PICK_CONTACT);
                 }
             }
         });
         et_addContact.removeTextChangedListener(textChangedListener);
         et_addContact.addTextChangedListener(textChangedListener);
-
-
     }
 
-    private void addReceiver(String phoneNumber, String name) {
-        if (receivers.containsKey(phoneNumber)) {
+    private void addReceiver(String email, String name) {
+        if (receivers.containsKey(email)) {
             Toast.makeText(getContext(), "Empfänger bereits vorhanden!", Toast.LENGTH_SHORT).show();
         } else {
-            receivers.put(phoneNumber, name);
+            receivers.put(email, name);
         }
     }
 
@@ -207,53 +202,53 @@ public class SmsDialogFragment extends DialogFragment {
             case RQ_PICK_CONTACT:
                 if (data != null) {
                     Uri contactData = data.getData();
-                    String phoneNumber = getPhoneNumber(contactData);
+                    String email = getEmail(contactData);
                     String name = getContactName(contactData);
-                    createChip(phoneNumber, name);
-                    addReceiver(phoneNumber, name);
+                    createChip(email, name);
+                    addReceiver(email, name);
                 }
                 break;
         }
 
     }
 
-    private void createChip(String phoneNumber, String name) {
+    private void createChip(String email, String name) {
         Chip chip = new Chip(getContext());
-        chip.setText(name + " (" + phoneNumber + ")");
+        chip.setText(name + " (" + email + ")");
         chip.setChipIconResource(R.drawable.ic_baseline_person_24);
         chip.setCloseIconVisible(true);
         chip.setOnCloseIconClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 chipGroup.removeView(chip);
-                receivers.remove(phoneNumber);
+                receivers.remove(email);
             }
         });
 
         chipGroup.addView(chip);
     }
 
-    private void createChip(String phoneNumber) {
+    private void createChip(String email) {
         Chip chip = new Chip(getContext());
-        chip.setText(phoneNumber);
+        chip.setText(email);
         chip.setChipIconResource(R.drawable.ic_baseline_person_24);
         chip.setCloseIconVisible(true);
         chip.setOnCloseIconClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 chipGroup.removeView(chip);
-                receivers.remove(phoneNumber);
+                receivers.remove(email);
             }
         });
         chipGroup.addView(chip);
     }
 
-    private String getPhoneNumber(Uri contactData) {
+    private String getEmail(Uri contactData) {
         Cursor c = getContext().getContentResolver().query(contactData, null, null, null, null);
         if (c.moveToFirst()) {
-            int phoneIndex = c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
-            String num = c.getString(phoneIndex);
-            return num;
+            int emailIndex = c.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA);
+            String email = c.getString(emailIndex);
+            return email;
         }
         return "";
     }
@@ -272,16 +267,14 @@ public class SmsDialogFragment extends DialogFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         toolbar.setNavigationOnClickListener(v -> dismiss());
-        toolbar.setTitle("SMS");
+        toolbar.setTitle("Email");
         toolbar.inflateMenu(R.menu.fragment_dialog);
 
         // den erstellten Task an die Activity senden
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() { // save Action
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (et_message.getText().length() > 160) {
-                    Toast.makeText(getContext(), "Die Nachricht ist zu lang!", Toast.LENGTH_SHORT).show();
-                } else if (receivers.isEmpty() && et_message.getText().toString().isEmpty()) {
+                if (receivers.isEmpty() && et_message.getText().toString().isEmpty()) {
                     Toast.makeText(getContext(), "Bitte Empfänger und Nachrichteninhalt hinzufügen!", Toast.LENGTH_SHORT).show();
                 } else if (receivers.isEmpty()) {
                     Toast.makeText(getContext(), "Bitte Empfänger eintragen!", Toast.LENGTH_SHORT).show();
@@ -289,7 +282,7 @@ public class SmsDialogFragment extends DialogFragment {
                     Toast.makeText(getContext(), "Sie müssen eine Nachricht eintragen!", Toast.LENGTH_SHORT).show();
                 } else {
                     LocalDateTime dateTime = LocalDateTime.of(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), timePicker.getHour(), timePicker.getMinute());
-                    SmsTask newTask = new SmsTask(et_message.getText().toString(), dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")), receivers);
+                    EmailTask newTask = new EmailTask(et_message.getText().toString(), dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")), receivers);
                     if (edit) {
                         if (task.equals(newTask)) {
                             Toast.makeText(getContext(), "Sie haben keine Änderungen vorgenommen!", Toast.LENGTH_SHORT).show();

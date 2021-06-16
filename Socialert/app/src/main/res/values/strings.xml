@@ -21,4 +21,9 @@
     <string name="hello_world">Hello Square World!</string>
     <string name="navigation_drawer_open">Navigation Drawer öffnen</string>
     <string name="navigation_drawer_close">Navigation Drawer schließen</string>
+    <string name="content_description_end_icon">Kontakt auswählen</string>
+    <string name="content_description_end_icon_add_number">Telefonnummer hinzufügen</string>
+    <string name="label_contact_number">Telefonnummer</string>
+    <string name="label_contact_email">Email</string>
+    <string name="label_message">Nachrichtentext</string>
 </resources>

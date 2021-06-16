@@ -4,20 +4,14 @@ import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTask;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SmsTask extends ScheduleTask implements Serializable {
-    private String phoneNumber;
 
-    public SmsTask(String message, String time, String phoneNumber) {
-        super(message, time);
-        this.phoneNumber = phoneNumber;
+    public SmsTask(String message, String time, HashMap<String, String> receivers) {
+        super(message, time, Task_Type.SMS, receivers);
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
 }
