@@ -1,8 +1,10 @@
 package net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,7 +22,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -29,15 +33,21 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.gmail.GmailScopes;
 
 import net.htlgrieskirchen.pos.dreic.socialert.R;
+import net.htlgrieskirchen.pos.dreic.socialert.Variables;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTask;
+import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTaskActivity;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.TaskListener;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.TaskMasterFragment;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,19 +55,24 @@ import java.util.Map;
 public class EmailDialogFragment extends DialogFragment {
     public static final String TAG = "email_dialog";
     private static final int RQ_PICK_CONTACT = 7489;
+    private static final int RQ_ACCESS_FINE_LOCATION = 1234;
     private MaterialToolbar toolbar;
     private TextInputLayout textField_addContact;
     private TextInputEditText et_addContact;
     private TextInputEditText et_message;
+    private TextInputEditText et_subject;
     private ChipGroup chipGroup;
     private TextWatcher textChangedListener;
     private DatePicker datePicker;
     private TimePicker timePicker;
+    private Button btn_location;
+    private Button btn_address;
+    private TextView tv_account;
 
     // for EmailTask object
     private HashMap<String, String> receivers = new HashMap<>();
 
-    private ScheduleTask task;
+    private EmailTask task;
     private int position;
     private boolean edit;
 
@@ -65,6 +80,10 @@ public class EmailDialogFragment extends DialogFragment {
 
     // Referenz auf die Activity mithilfe eines Objekts vom Typ OnAddTaskListener
     private TaskListener listener;
+
+    private String accountName;
+
+    private boolean isGPSAllowed = false;
 
 
     public static EmailDialogFragment display(FragmentManager fragmentManager) {
@@ -87,7 +106,6 @@ public class EmailDialogFragment extends DialogFragment {
         } else {
             Toast.makeText(getContext(), "onAttach: Activity does not implement OnAddTaskListener", Toast.LENGTH_SHORT).show();
         }
-
     }
 
 
@@ -96,9 +114,12 @@ public class EmailDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NORMAL, R.style.Theme_Socialert_FullScreenDialog);
         if (getArguments() != null) {
-            task = (ScheduleTask) getArguments().getSerializable("task");
+            task = (EmailTask) getArguments().getSerializable("task");
             position = getArguments().getInt("position");
             edit = true;
+            accountName = task.getAccountName();
+        } else {
+            accountName = ((ScheduleTaskActivity) getActivity()).getSelectedAccountName();
         }
     }
 
@@ -111,15 +132,22 @@ public class EmailDialogFragment extends DialogFragment {
         textField_addContact = view.findViewById(R.id.textField_addContact);
         et_addContact = view.findViewById(R.id.et_addContact);
         et_message = view.findViewById(R.id.et_message);
+        et_subject = view.findViewById(R.id.et_subject);
         chipGroup = view.findViewById(R.id.chipGroup);
         timePicker = view.findViewById(R.id.timePicker);
         timePicker.setIs24HourView(true);
         datePicker = view.findViewById(R.id.datePicker);
+        tv_account = view.findViewById(R.id.tv_account);
+        if (accountName != null && !edit) {
+            tv_account.append(accountName);
+        }
         initTextChangedListener();
         addTextFieldListeners();
 
         if (edit) {
             et_message.setText(task.getMessage());
+            tv_account.append(task.getAccountName());
+            et_subject.setText(task.getSubject());
             LocalDateTime localDateTime = task.getTimeAsLocalDateTime();
             datePicker.init(localDateTime.getYear(), localDateTime.getMonthValue() - 1, localDateTime.getDayOfMonth(), DatePicker::updateDate);
             timePicker.setHour(localDateTime.getHour());
@@ -138,7 +166,56 @@ public class EmailDialogFragment extends DialogFragment {
 
         }
 
+        btn_address = view.findViewById(R.id.btn_address);
+        btn_location = view.findViewById(R.id.btn_location);
+
+        btn_address.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkPermissionGPS();
+                if (isGPSAllowed) {
+                    et_message.getText().insert(et_message.getSelectionStart(), Variables.ADDRESS);
+                }
+            }
+        });
+
+        btn_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkPermissionGPS();
+                if (isGPSAllowed) {
+                    et_message.getText().insert(et_message.getSelectionStart(), Variables.LOCATION);
+                }
+            }
+        });
+
         return view;
+    }
+
+    private void checkPermissionGPS() {
+        String permission = Manifest.permission.ACCESS_FINE_LOCATION;
+        if (getActivity().checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            getActivity().requestPermissions(new String[]{permission}, RQ_ACCESS_FINE_LOCATION);
+        } else {
+            isGPSAllowed = true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case RQ_ACCESS_FINE_LOCATION:
+                if (grantResults.length > 0 &&
+                        grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getContext(), "Permission ACCESS_FINE_LOCATION denied!", Toast.LENGTH_SHORT).show();
+                } else {
+                    isGPSAllowed = true;
+                }
+                break;
+
+        }
+
     }
 
     private void initTextChangedListener() {
@@ -173,14 +250,11 @@ public class EmailDialogFragment extends DialogFragment {
                 if (isAddEmailIcon) { // TextField is not empty!
                     String email = et_addContact.getText().toString();
                     String regex = "[A-Za-z0-9!#$%&'\\*\\+\\-\\/=?^_`{|}~]([A-Za-z0-9\\.!#$%&'\\*\\+\\-\\/=?^_`{|}~]+)?[A-Za-z0-9!#$%&'\\*\\+\\-\\/=?^_`{|}~]@[A-Za-z0-9\\.!#$%&'\\*\\+\\-\\/=?^_`{|}~]{2,}\\.[A-Za-z]{2,6}";
-                    if(email.matches(regex))
-                    {
+                    if (email.matches(regex)) {
                         createChip(email);
                         addReceiver(email, "");
                         et_addContact.getText().clear();
-                    }
-                    else
-                    {
+                    } else {
                         Toast.makeText(getContext(), "Ungültige E-Mail Adresse!", Toast.LENGTH_SHORT).show();
                     }
                 } else {
@@ -288,9 +362,11 @@ public class EmailDialogFragment extends DialogFragment {
                     Toast.makeText(getContext(), "Bitte Empfänger eintragen!", Toast.LENGTH_SHORT).show();
                 } else if (et_message.getText().toString().isEmpty()) {
                     Toast.makeText(getContext(), "Sie müssen eine Nachricht eintragen!", Toast.LENGTH_SHORT).show();
+                } else if (et_subject.getText().toString().isEmpty()) {
+                    Toast.makeText(getContext(), "Sie müssen einen Betreff eingeben!", Toast.LENGTH_SHORT).show();
                 } else {
                     LocalDateTime dateTime = LocalDateTime.of(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), timePicker.getHour(), timePicker.getMinute());
-                    EmailTask newTask = new EmailTask(et_message.getText().toString(), dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")), receivers);
+                    EmailTask newTask = new EmailTask(et_message.getText().toString(), dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")), receivers, et_subject.getText().toString(), accountName);
                     if (edit) {
                         newTask.setCompleted(task.isCompleted());
                         if (task.equals(newTask)) {

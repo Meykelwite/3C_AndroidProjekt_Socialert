@@ -1,9 +1,13 @@
 package net.htlgrieskirchen.pos.dreic.socialert.schedule_task;
 
 import android.Manifest;
+import android.accounts.AccountManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -22,10 +26,25 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.material.badge.BadgeDrawable;
+
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.Base64;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.GmailScopes;
+import com.google.api.services.gmail.model.Message;
+
 
 import net.htlgrieskirchen.pos.dreic.socialert.BaseActivity;
 import net.htlgrieskirchen.pos.dreic.socialert.R;
@@ -36,13 +55,33 @@ import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SendSMS;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsDialogFragment;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
+
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
 
 public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFragment.OnSelectionChangedListener, TaskListener {
     private static final int PICK_CONTACT = 123456;
+    private static final int REQUEST_CODE_SIGN_IN = 1;
+    private static final int MY_PERMISSIONS_REQUEST_SEND_GMAIL = 78;
+
+    private static final int REQUEST_ACCOUNT_PICKER = 4;
+    private static ScheduleTaskActivity instance;
+    private static final int REQUEST_AUTHORIZATION = 32794;
+
+    private GoogleAccountCredential mCredential;
 
     private ScheduleTaskManager taskManager;
 
@@ -77,18 +116,20 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        //inflate your activity layout here!
-        //View view = inflater.inflate(R.layout.activity_schedule_task, null, false);
-
         LayoutInflater inflater = getLayoutInflater();
         LinearLayout container = findViewById(R.id.content_frame);
         View view = inflater.inflate(R.layout.activity_schedule_task, container);
+        instance = this;
+
+        mCredential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(new String[]{GmailScopes.GMAIL_SEND}))
+                .setBackOff(new ExponentialBackOff());
+
 
         getSupportActionBar().setTitle(R.string.navigation_drawer_title_1);
 
         // init TaskManager
-        taskManager = new ScheduleTaskManager(this);
+        initTaskManager();
 
         fab_parent = view.findViewById(R.id.add_fab);
         fab_addSMSTask = view.findViewById(R.id.add_sms_task);
@@ -100,22 +141,6 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         setUpFabButtons();
 
         viewPager = view.findViewById(R.id.view_pager);
-//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-//            @Override
-//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-//
-//            }
-//
-//            @Override
-//            public void onPageSelected(int position) {
-//                refresh();
-//            }
-//
-//            @Override
-//            public void onPageScrollStateChanged(int state) {
-//
-//            }
-//        });
 
         tabLayout = view.findViewById(R.id.tab_layout);
 
@@ -133,15 +158,18 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
         pagerAdapter.addFragment(completedTasksFragment, getString(R.string.text_tab_completed_tasks));
         viewPager.setAdapter(pagerAdapter);
 
-        //set the icons
-        //tabLayout.getTabAt(0).setIcon(R.drawable.android);
-        //tabLayout.getTabAt(1).setIcon(R.drawable.google_play);
-
-
         navigationView.setCheckedItem(R.id.nav_schedule_task);
 
         int orientation = getResources().getConfiguration().orientation;
         showRight = orientation == Configuration.ORIENTATION_LANDSCAPE;
+    }
+
+    private void initTaskManager() {
+        taskManager = new ScheduleTaskManager(this);
+    }
+
+    public static ScheduleTaskActivity getInstance() {
+        return instance;
     }
 
     private void setUpFabButtons() {
@@ -185,47 +213,141 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
             @Override
             public void onClick(View v) {
                 // tasks.add(new SmsTask("SMS", "Juni", "0664"));
-                SmsDialogFragment.display(getSupportFragmentManager());
-                //registerForActivityResult(ActivityResultContracts.PickContact);
-                refresh();
+                checkPermission();
+                if (checkSelfPermission(Manifest.permission.SEND_SMS)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    SmsDialogFragment.display(getSupportFragmentManager());
+                    refresh();
+                }
             }
         });
 
         fab_addEmailTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //tasks.add(new EmailTask("Email", "Juni", "johndoe@fortnite.com"));
-                EmailDialogFragment.display(getSupportFragmentManager());
-                refresh();
+                chooseAccount(mCredential);
+                // EmailDialogFragment is then shown in onActivityResult
             }
         });
     }
 
+    // Storing Mail ID using Shared Preferences
+    public void chooseAccount(GoogleAccountCredential credential) {
+        if (checkSelfPermission(Manifest.permission.GET_ACCOUNTS)
+                == PackageManager.PERMISSION_GRANTED) {
+            // Start a dialog from which the user can choose an account
+            startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
+            //}
+        } else {
+            requestPermissions(new String[]{Manifest.permission.GET_ACCOUNTS}, 6567641);
+        }
+    }
+
     @Override
-    public void onRequestPermissionsResult( int requestCode,
-                                            String[] permissions,
-                                            int[] grantResults ) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_ACCOUNT_PICKER:
+                    if (resultCode == RESULT_OK && data != null && data.getExtras() != null) {
+                        String accountName = data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME);
+                        if (accountName != null) {
+                            mCredential.setSelectedAccountName(accountName);
+
+                            HttpTransport transport = AndroidHttp.newCompatibleTransport();
+                            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+                            Gmail service = new Gmail.Builder(
+                                    transport, jsonFactory, mCredential)
+                                    .setApplicationName(getString(R.string.app_name))
+                                    .build();
+                            // Dieser AsyncTask dient nur dazu, dass die User-Authorisierung vor dem Senden einer Email stattfindet
+                            // keine bessere Lösung gefunden
+                            // https://stackoverflow.com/questions/41387992/gmail-api-grant-permissions-before-userrecoverableauthuiexception
+                            boolean showDialog = false;
+                            new AsyncTask<Void, Void, String>() {
+                                @Override
+                                protected String doInBackground(Void... voids) {
+                                    try {
+                                        service.users().messages().get("me", "id").execute();
+                                    } catch (Exception e) {
+                                        if (e instanceof UserRecoverableAuthIOException) {
+                                            startActivityForResult(((UserRecoverableAuthIOException) e).getIntent(), REQUEST_AUTHORIZATION);
+                                        } else {
+                                            // Hier tritt immer eine Exception auf, da wir die authentication scopes für den Befehl im try-Block gar nicht besitzen
+                                            // wir fangen sie ab
+                                            if (e instanceof GoogleJsonResponseException) {
+                                                return "showDialog";
+                                            } else {
+                                                return e.getMessage();
+                                            }
+                                            //e.printStackTrace();
+                                        }
+                                    }
+                                    return "";
+                                }
+
+                                @Override
+                                protected void onPostExecute(String s) {
+                                    super.onPostExecute(s);
+                                    if (s.equals("showDialog")) {
+                                        EmailDialogFragment.display(getSupportFragmentManager());
+                                        refresh();
+                                    } else if (!s.isEmpty()) {
+                                        Toast.makeText(getApplicationContext(), "Fehler: " + s, Toast.LENGTH_LONG).show();
+                                    }
+
+                                }
+                            }.execute();
+                        }
+                    }
+                    break;
+                case REQUEST_AUTHORIZATION:
+                    Toast.makeText(this, "User " + mCredential.getSelectedAccountName() + " wurde erfolgreich authorisiert!", Toast.LENGTH_SHORT).show();
+                    EmailDialogFragment.display(getSupportFragmentManager());
+                    refresh();
+                    break;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions,
+                                           int[] grantResults) {
         super.onRequestPermissionsResult(requestCode,
                 permissions,
                 grantResults);
-        if (requestCode==MY_PERMISSIONS_REQUEST_SEND_SMS) {
-            if (grantResults.length>0 &&
-                    grantResults[0]!=PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_SEND_SMS) {
+            if (grantResults.length > 0 &&
+                    grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getApplicationContext(), "Permission required!",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+        if (requestCode == MY_PERMISSIONS_REQUEST_SEND_GMAIL) {
+            if (grantResults.length > 0 &&
+                    grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getApplicationContext(), "Permission required!",
                         Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    public void checkPermission()
-    {
-        if (checkSelfPermission(Manifest.permission.SEND_SMS)
-                !=PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_SEND_SMS);
+    public void checkPermissionGmail() {
+        if (checkSelfPermission(Manifest.permission.GET_ACCOUNTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.GET_ACCOUNTS}, MY_PERMISSIONS_REQUEST_SEND_GMAIL);
+        } else {
+
         }
-        else
-        {
-            sendSMS.sendSMSMessage("069913106148", "Somebody toucha ma spaghett");
+    }
+
+    public void checkPermission() {
+        if (checkSelfPermission(Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_SEND_SMS);
+        } else {
+
         }
     }
 
@@ -239,6 +361,7 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
     }
 
     public void refresh() {
+        initTaskManager();
         if (getFragmentRefreshListenerCompletedTasks() != null) {
             getFragmentRefreshListenerCompletedTasks().onRefresh();
         }
@@ -350,6 +473,10 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
 
     public ScheduleTaskManager getTaskManager() {
         return taskManager;
+    }
+
+    public String getSelectedAccountName() {
+        return mCredential.getSelectedAccountName();
     }
 
 

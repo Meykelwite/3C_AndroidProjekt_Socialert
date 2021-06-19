@@ -26,4 +26,10 @@
     <string name="label_contact_number">Telefonnummer</string>
     <string name="label_contact_email">Email</string>
     <string name="label_message">Nachrichtentext</string>
+    <string name="label_subject">Betreff</string>
+    <string name="textview_variables">Variablen</string>
+    <string name="variable_location">Standort</string>
+    <string name="variable_address">Adresse</string>
+    <string name="change_account">Ändern</string>
+    <string name="tv_account">Absender: </string>
 </resources>

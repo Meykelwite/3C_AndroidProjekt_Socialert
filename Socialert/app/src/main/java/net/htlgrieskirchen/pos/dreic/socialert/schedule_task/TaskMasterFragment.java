@@ -137,7 +137,7 @@ public class TaskMasterFragment extends Fragment {
             case R.id.lv_tasks:
                 getActivity().getMenuInflater().inflate(R.menu.context_menu, menu);
                 if (type == 0) { // ongoing Task
-                    MenuItem context_markAsCompleted = menu.getItem(3);
+                    MenuItem context_markAsCompleted = menu.getItem(2);
                     context_markAsCompleted.setVisible(true);
                 }
                 break;
@@ -184,27 +184,12 @@ public class TaskMasterFragment extends Fragment {
                     }
                     refresh();
                     break;
-                case R.id.context_copy:
-                    ScheduleTask newTask = null;
-                    switch (task.getTask_type()) {
-                        case SMS:
-                            newTask = new SmsTask(task.getMessage(), task.getTime(), task.getReceivers());
-                            newTask.setCompleted(task.isCompleted());
-                            break;
-                        case EMAIL:
-                            newTask = new EmailTask(task.getMessage(), task.getTime(), task.getReceivers());
-                            newTask.setCompleted(task.isCompleted());
-                            break;
-                    }
-                    taskManager.addTask(newTask);
-                    refresh();
-                    break;
                 case R.id.context_delete:
                     taskManager.removeTask(task);
                     refresh();
                     break;
                 case R.id.context_markAsCompleted:
-                    taskManager.setCompleted(task, true);
+                    taskManager.markAsCompleted(task);
                     refresh();
                     break;
             }
@@ -220,16 +205,15 @@ public class TaskMasterFragment extends Fragment {
         ((ScheduleTaskActivity) getActivity()).refresh();
     }
 
-    private List<ScheduleTask> getTasks() {
-        return taskManager.getTasks();
-    }
 
     private List<ScheduleTask> getOngoingTasks() {
-        return getTasks().stream().filter(task -> !task.isCompleted()).collect(Collectors.toList());
+        taskManager = ((ScheduleTaskActivity) getActivity()).getTaskManager();
+        return taskManager.getTasks().stream().filter(task -> !task.isCompleted()).collect(Collectors.toList());
     }
 
     private List<ScheduleTask> getCompletedTasks() {
-        return getTasks().stream().filter(task -> task.isCompleted()).collect(Collectors.toList());
+        taskManager = ((ScheduleTaskActivity) getActivity()).getTaskManager();
+        return taskManager.getTasks().stream().filter(task -> task.isCompleted()).collect(Collectors.toList());
     }
 
     private void itemSelected(int position) {

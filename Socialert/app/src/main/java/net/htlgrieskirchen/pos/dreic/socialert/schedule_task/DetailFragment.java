@@ -2,6 +2,7 @@ package net.htlgrieskirchen.pos.dreic.socialert.schedule_task;
 
 import android.os.Bundle;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -30,6 +31,10 @@ public class DetailFragment extends Fragment implements Serializable {
     // private TextView tv_time;
     private TextView tv_details_time;
 
+    // EMAIL
+    private ConstraintLayout layout_subject;
+    private TextView tv_details_subject;
+
 
     public DetailFragment() {
         // Required empty public constructor
@@ -50,6 +55,10 @@ public class DetailFragment extends Fragment implements Serializable {
         tv_details_message = view.findViewById(R.id.tv_details_message);
         tv_details_time = view.findViewById(R.id.tv_details_time);
 
+        // Email
+        layout_subject = view.findViewById(R.id.layout_subject);
+        tv_details_subject = view.findViewById(R.id.tv_details_subject);
+
         return view;
     }
 
@@ -62,5 +71,13 @@ public class DetailFragment extends Fragment implements Serializable {
         tv_details_message.setText(task.getMessage());
 
         tv_details_time.setText(task.getTime());
+
+        if (task.getTask_type() == ScheduleTask.Task_Type.EMAIL) {
+            layout_subject.setVisibility(View.VISIBLE);
+            tv_details_subject.setText(((EmailTask) task).getSubject());
+        } else {
+            layout_subject.setVisibility(View.GONE);
+        }
+
     }
 }
