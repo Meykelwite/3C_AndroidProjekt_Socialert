@@ -1,6 +1,8 @@
 package net.htlgrieskirchen.pos.dreic.socialert.auto_reply_task;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,16 +18,30 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import net.htlgrieskirchen.pos.dreic.socialert.BaseActivity;
 import net.htlgrieskirchen.pos.dreic.socialert.R;
 import net.htlgrieskirchen.pos.dreic.socialert.ViewPagerAdapter;
+import net.htlgrieskirchen.pos.dreic.socialert.auto_reply_task.sms.SmsDialogFragment;
 
-public class AutoReplyTaskActivity extends BaseActivity implements TaskMasterFragment.OnSelectionChangedListener {
+public class AutoReplyTaskActivity extends BaseActivity implements TaskMasterFragment.OnSelectionChangedListener, TaskListener {
+
+    private static AutoReplyTaskActivity instance;
+
+    private AutoReplyTaskManager taskManager;
+
+    // SMS permissions
+    private static final int RQ_RECEIVE_READ_SEND_SMS = 4712;
+    private boolean isSMSAllowed = false;
+
+
+    // to refresh the shown tasks in the MasterFragment
+    private FragmentRefreshListener fragmentRefreshListenerOngoingTasks;
+    private FragmentRefreshListener fragmentRefreshListenerCompletedTasks;
+
     private static final String STATE_TASK = "taskState";
-    private static String selectedTask;
+    private static AutoReplyTask selectedTask;
 
     private ViewPager viewPager;
     private TabLayout tabLayout;
@@ -45,12 +61,16 @@ public class AutoReplyTaskActivity extends BaseActivity implements TaskMasterFra
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         LayoutInflater inflater = getLayoutInflater();
         LinearLayout container = findViewById(R.id.content_frame);
         View view = inflater.inflate(R.layout.activity_auto_reply_task, container);
+        instance = this;
+
 
         getSupportActionBar().setTitle(R.string.navigation_drawer_title_2);
+
+        // init TaskManager
+        initTaskManager();
 
         fab_parent = view.findViewById(R.id.add_fab);
         fab_addSMSTask = view.findViewById(R.id.add_sms_task);
@@ -60,30 +80,35 @@ public class AutoReplyTaskActivity extends BaseActivity implements TaskMasterFra
         setUpFabButtons();
 
         viewPager = view.findViewById(R.id.view_pager);
+
         tabLayout = view.findViewById(R.id.tab_layout);
 
         tabLayout.setupWithViewPager(viewPager);
         pagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), 0);
-        pagerAdapter.addFragment(new TabTaskFragment(), getString(R.string.text_tab_ongoing_tasks));
-        pagerAdapter.addFragment(new TabTaskFragment(), getString(R.string.text_tab_completed_tasks));
+        TabTaskFragment ongoingTasksFragment = new TabTaskFragment();
+        Bundle bundle1 = new Bundle();
+        bundle1.putInt("type", 0); // 0 for ongoing tasks
+        ongoingTasksFragment.setArguments(bundle1); //
+        pagerAdapter.addFragment(ongoingTasksFragment, getString(R.string.text_tab_ongoing_tasks));
+        TabTaskFragment completedTasksFragment = new TabTaskFragment();
+        Bundle bundle2 = new Bundle();
+        bundle2.putInt("type", 1); // 1 for completed tasks
+        completedTasksFragment.setArguments(bundle2);
+        pagerAdapter.addFragment(completedTasksFragment, getString(R.string.text_tab_completed_tasks));
         viewPager.setAdapter(pagerAdapter);
 
-        //drawer.addView(view.getRootView(), 0);
         navigationView.setCheckedItem(R.id.nav_auto_reply);
 
-//        FloatingActionButton fab = view.findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Test", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-
-        //Toast.makeText(this, ""+getSupportFragmentManager().getFragments().get(0).getChildFragmentManager().getFragments().get(0).getChildFragmentManager().getFragments().size(), Toast.LENGTH_SHORT).show();
-        //detailFragment = (DetailFragment) get.findFragmentById(R.id.fragDetail);
         int orientation = getResources().getConfiguration().orientation;
         showRight = orientation == Configuration.ORIENTATION_LANDSCAPE;
+    }
+
+    private void initTaskManager() {
+        taskManager = new AutoReplyTaskManager(this);
+    }
+
+    public static AutoReplyTaskActivity getInstance() {
+        return instance;
     }
 
     private void setUpFabButtons() {
@@ -119,21 +144,70 @@ public class AutoReplyTaskActivity extends BaseActivity implements TaskMasterFra
             @Override
             public void onClick(View v) {
                 //animateFab();
-                Toast.makeText(getApplicationContext(), "SMS Added", Toast.LENGTH_SHORT).show();
+                checkPermission();
+                if (isSMSAllowed) {
+                    SmsDialogFragment.display(getSupportFragmentManager());
+                    refresh();
+                }
             }
         });
 
     }
 
+    private void checkPermission() {
+        if (checkSelfPermission(Manifest.permission.RECEIVE_SMS)
+                != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            // RQ_RECEIVE_SEND_SMS ist just any constant value to identify the request
+            requestPermissions(new String[]{Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS, Manifest.permission.SEND_SMS},
+                    RQ_RECEIVE_READ_SEND_SMS);
+        } else {
+            isSMSAllowed = true;
+        }
+    }
 
-    private void startRightActivity(String task) {
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions,
+                                           int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode,
+                permissions,
+                grantResults);
+        if (requestCode == RQ_RECEIVE_READ_SEND_SMS) {
+            if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "SMS-Berechtigungen wurden verweigert!", Toast.LENGTH_LONG).show();
+            } else {
+                isSMSAllowed = true;
+            }
+        }
+    }
+
+    private void addTask(AutoReplyTask task) {
+        taskManager.addTask(task);
+        refresh();
+    }
+
+    public TabLayout getTabLayout() {
+        return tabLayout;
+    }
+
+    public void refresh() {
+        initTaskManager();
+        if (getFragmentRefreshListenerCompletedTasks() != null) {
+            getFragmentRefreshListenerCompletedTasks().onRefresh();
+        }
+        if (getFragmentRefreshListenerOngoingTasks() != null) {
+            getFragmentRefreshListenerOngoingTasks().onRefresh();
+        }
+    }
+
+    private void startRightActivity(AutoReplyTask task) {
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra("task", task);
         startActivity(intent);
     }
 
     @Override
-    public void onSelectionChanged(String task) {
+    public void onSelectionChanged(AutoReplyTask task) {
         this.selectedTask = task;
         if (showRight) {
             ViewPager viewPager = findViewById(R.id.view_pager);
@@ -158,7 +232,7 @@ public class AutoReplyTaskActivity extends BaseActivity implements TaskMasterFra
     public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
-            selectedTask = savedInstanceState.getString(STATE_TASK);
+            selectedTask = (AutoReplyTask) savedInstanceState.getSerializable(STATE_TASK);
             if (selectedTask != null) {
                 if (showRight) {
                     ViewPager viewPager = findViewById(R.id.view_pager);
@@ -187,5 +261,48 @@ public class AutoReplyTaskActivity extends BaseActivity implements TaskMasterFra
         }
     }
 
+    // for Sms Dialogfragment
+    @Override
+    public void onAddTask(AutoReplyTask task) {
+        addTask(task);
+        refresh();
+    }
+
+    @Override
+    public void onEditTask(int position, AutoReplyTask newTask) {
+        taskManager.setTask(position, newTask);
+        refresh();
+    }
+
+
+    // for activity fragment commuinication
+    // https://www.legendblogs.com/refresh-a-fragment-list-from-activity
+    public interface FragmentRefreshListener {
+        void onRefresh();
+    }
+
+    public FragmentRefreshListener getFragmentRefreshListenerOngoingTasks() {
+        return fragmentRefreshListenerOngoingTasks;
+    }
+
+    public void setFragmentRefreshListenerOngoingTasks(FragmentRefreshListener fragmentRefreshListenerOngoingTasks) {
+        this.fragmentRefreshListenerOngoingTasks = fragmentRefreshListenerOngoingTasks;
+    }
+
+    public FragmentRefreshListener getFragmentRefreshListenerCompletedTasks() {
+        return fragmentRefreshListenerCompletedTasks;
+    }
+
+    public void setFragmentRefreshListenerCompletedTasks(FragmentRefreshListener fragmentRefreshListenerCompletedTasks) {
+        this.fragmentRefreshListenerCompletedTasks = fragmentRefreshListenerCompletedTasks;
+    }
+
+    public ViewPager getViewPager() {
+        return viewPager;
+    }
+
+    public AutoReplyTaskManager getTaskManager() {
+        return taskManager;
+    }
 
 }

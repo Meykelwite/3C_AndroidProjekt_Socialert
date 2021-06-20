@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/context_edit"
+        android:title="Bearbeiten"
+        android:visible="false" />
+    <item
+        android:id="@+id/context_delete"
+        android:title="Löschen" />
+    <item
+        android:id="@+id/context_markAsCompleted"
+        android:title="Als abgeschlossen markieren"
+        android:visible="false" />
+</menu>

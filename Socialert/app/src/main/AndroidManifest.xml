@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"
@@ -33,13 +36,19 @@
             android:theme="@style/Theme.Socialert.NoActionBar" />
         <activity android:name=".PreferenceActivity" />
 
-        <receiver android:name=".ScheduleTaskBroadcastReceiver"></receiver>
-
         <receiver
             android:name=".BootBroadcastReceiver"
             android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".schedule_task.ScheduleTaskBroadcastReceiver"></receiver>
+
+        <receiver android:name=".auto_reply_task.sms.StaticSMSReceiver">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
     </application>

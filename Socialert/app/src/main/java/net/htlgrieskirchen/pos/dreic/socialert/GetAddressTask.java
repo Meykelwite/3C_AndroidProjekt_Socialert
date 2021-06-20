@@ -16,14 +16,6 @@ import java.net.URL;
 
 public class GetAddressTask extends AsyncTask<String, Integer, String> {
 
-    private ScheduleTask task;
-    private ScheduleTaskManager taskManager;
-
-    public GetAddressTask(ScheduleTask task, ScheduleTaskManager taskManager) {
-        this.task = task;
-        this.taskManager = taskManager;
-    }
-
     @Override
     protected String doInBackground(String... strings) {
         String sJson = "";

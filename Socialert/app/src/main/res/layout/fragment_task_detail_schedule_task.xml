@@ -46,6 +46,7 @@
             app:layout_constraintTop_toBottomOf="@+id/imageView_contacts" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- für Email -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_subject"
         android:layout_width="match_parent"
@@ -120,7 +121,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <ImageView
@@ -151,6 +152,44 @@
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="@+id/tv_time"
             app:layout_constraintTop_toBottomOf="@+id/imageView_time" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- für Email -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_send_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/imageView_send_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_baseline_check_24" />
+
+        <TextView
+            android:id="@+id/tv_send_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="Ergebnis"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@+id/imageView_send_result"
+            app:layout_constraintTop_toTopOf="@+id/imageView_send_result" />
+
+        <TextView
+            android:id="@+id/tv_details_send_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ergebnis"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="@+id/tv_send_result"
+            app:layout_constraintTop_toBottomOf="@+id/imageView_send_result" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

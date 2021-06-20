@@ -10,7 +10,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import net.htlgrieskirchen.pos.dreic.socialert.ScheduleTaskBroadcastReceiver;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email.EmailTask;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 
@@ -172,4 +171,8 @@ public class ScheduleTaskManager {
     }
 
 
+    public void setSendResult(EmailTask task, String s) {
+        task.setSendResult(s);
+        saveTasks();
+    }
 }

@@ -3,7 +3,6 @@ package net.htlgrieskirchen.pos.dreic.socialert.schedule_task;
 import android.content.Context;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
@@ -11,11 +10,9 @@ import androidx.viewpager.widget.ViewPager;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,13 +22,8 @@ import com.google.android.material.tabs.TabLayout;
 import net.htlgrieskirchen.pos.dreic.socialert.R;
 import net.htlgrieskirchen.pos.dreic.socialert.ViewPagerAdapter;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email.EmailDialogFragment;
-import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email.EmailTask;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsDialogFragment;
-import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -135,7 +127,7 @@ public class TaskMasterFragment extends Fragment {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         switch (v.getId()) {
             case R.id.lv_tasks:
-                getActivity().getMenuInflater().inflate(R.menu.context_menu, menu);
+                getActivity().getMenuInflater().inflate(R.menu.context_menu_schedule_task, menu);
                 if (type == 0) { // ongoing Task
                     MenuItem context_markAsCompleted = menu.getItem(2);
                     context_markAsCompleted.setVisible(true);

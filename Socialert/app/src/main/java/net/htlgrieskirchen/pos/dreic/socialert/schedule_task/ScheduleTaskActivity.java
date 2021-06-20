@@ -87,9 +87,6 @@ public class ScheduleTaskActivity extends BaseActivity implements TaskMasterFrag
 
     //send automatic SMS
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
-    private static final SendSMS sendSMS = new SendSMS();
-    String phoneNo;
-    String message;
 
     // to refresh the shown tasks in the MasterFragment
     private FragmentRefreshListener fragmentRefreshListenerOngoingTasks;

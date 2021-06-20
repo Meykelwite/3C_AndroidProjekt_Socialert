@@ -34,6 +34,8 @@ public class DetailFragment extends Fragment implements Serializable {
     // EMAIL
     private ConstraintLayout layout_subject;
     private TextView tv_details_subject;
+    private ConstraintLayout layout_send_result;
+    private TextView tv_details_send_result;
 
 
     public DetailFragment() {
@@ -58,6 +60,8 @@ public class DetailFragment extends Fragment implements Serializable {
         // Email
         layout_subject = view.findViewById(R.id.layout_subject);
         tv_details_subject = view.findViewById(R.id.tv_details_subject);
+        layout_send_result = view.findViewById(R.id.layout_send_result);
+        tv_details_send_result = view.findViewById(R.id.tv_details_send_result);
 
         return view;
     }
@@ -75,8 +79,18 @@ public class DetailFragment extends Fragment implements Serializable {
         if (task.getTask_type() == ScheduleTask.Task_Type.EMAIL) {
             layout_subject.setVisibility(View.VISIBLE);
             tv_details_subject.setText(((EmailTask) task).getSubject());
+            String sendResult = ((EmailTask) task).getSendResult();
+            if (sendResult != null) {
+                layout_send_result.setVisibility(View.VISIBLE);
+                if (task.getMessage().equals(sendResult)) {
+                    sendResult = "Erfolgreich gesendet";
+                }
+                tv_details_send_result.setText(sendResult);
+            }
+
         } else {
             layout_subject.setVisibility(View.GONE);
+            layout_send_result.setVisibility(View.GONE);
         }
 
     }

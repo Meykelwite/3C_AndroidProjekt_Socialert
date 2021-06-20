@@ -1,15 +1,10 @@
 package net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.googleapis.util.Utils;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -19,8 +14,6 @@ import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.Message;
 
-import net.htlgrieskirchen.pos.dreic.socialert.R;
-import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTask;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTaskActivity;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTaskManager;
 
@@ -36,9 +29,8 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import static androidx.core.app.ActivityCompat.startActivityForResult;
 
-// Async Task for sending Mail using GMail OAuth
+// Service for sending Mail using GMail OAuth
 public class SendEmailTask extends AsyncTask<Void, Void, String> {
 
     private GoogleAccountCredential mCredential;
@@ -134,10 +126,10 @@ public class SendEmailTask extends AsyncTask<Void, Void, String> {
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
         taskManager.markAsCompleted(task);
+        taskManager.setSendResult(task, s);
         ScheduleTaskActivity scheduleTaskActivity = ScheduleTaskActivity.getInstance();
         if (scheduleTaskActivity != null) {
             scheduleTaskActivity.refresh();
         }
-        task.setSendResult(s);
     }
 }

@@ -27,9 +27,8 @@ public class DetailActivity extends AppCompatActivity {
             return;
         }
         DetailFragment detailFragment = (DetailFragment) getSupportFragmentManager().findFragmentById(R.id.fragDetail);
-        String task = intent.getStringExtra("task");
-
-        getSupportActionBar().setTitle(task);
+        AutoReplyTask task = (AutoReplyTask) intent.getSerializableExtra("task");
+        getSupportActionBar().setTitle("Details");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         detailFragment.show(task);

@@ -1,4 +1,4 @@
-package net.htlgrieskirchen.pos.dreic.socialert;
+package net.htlgrieskirchen.pos.dreic.socialert.schedule_task;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -12,9 +12,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTask;
-import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTaskActivity;
-import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.ScheduleTaskManager;
+import net.htlgrieskirchen.pos.dreic.socialert.GetAddressTask;
+import net.htlgrieskirchen.pos.dreic.socialert.Variables;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email.EmailTask;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.email.SendEmailTask;
 import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SendSMS;
@@ -23,8 +22,6 @@ import net.htlgrieskirchen.pos.dreic.socialert.schedule_task.sms.SmsTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class ScheduleTaskBroadcastReceiver extends BroadcastReceiver {
@@ -56,7 +53,7 @@ public class ScheduleTaskBroadcastReceiver extends BroadcastReceiver {
             double lon = location == null ? -1 : location.getLongitude();
             String newMessage = task.getMessage();
             if (taskManager.getTaskAt(pos).getMessage().contains(Variables.ADDRESS)) {
-                GetAddressTask getAddressTask = new GetAddressTask(task, taskManager);
+                GetAddressTask getAddressTask = new GetAddressTask();
                 getAddressTask.execute(new String[]{String.valueOf(lat), String.valueOf(lon)});
                 try {
                     String apiResult = getAddressTask.get();
