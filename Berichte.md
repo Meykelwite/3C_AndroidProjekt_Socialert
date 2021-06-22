@@ -1,5 +1,32 @@
 # Wöchentliche Berichte / Resümees
 
+## Woche vom 16. Juni 2021
+
+### Was ist gut gelaufen?
+
+App fertiggestellt.
+
+### Welche Arbeitspakete wurden erledigt?
+
+* Automatisch SMS versenden mit Location fertigstellen
+* Anbindung an Gmail-API fertiggestellt
+* Alarm Manager
+* Automatisch Antworten für SMS
+* Notifications
+
+### Welche Probleme sind aufgetreten?
+
+Das Arbeitspaket
+* Dark Theme
+
+wurde nicht fertiggestellt.
+
+### Wie liegt die Gruppe im Zeitplan?
+
+Das Projekt wurde rechtzeitig abgeschlossen und ist funktionstüchtig.
+
+***
+
 ## Woche vom 9. Juni 2021
 
 ### Was ist gut gelaufen?
