@@ -9,6 +9,10 @@
 | Tabs | 9 | 2 | 7 | Tablayout, ganze Projektstruktur geändert (NavigationDrawer navigiert nun zwischen Activities anstatt Fragments), ViewPager implementiert ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/4bcee273ef38f87bdb8ca0b51b4c69e3e45a5541))
 | ListView (für die Tasks) und Adapter | 7 | 5 | 2 | u.a. auch Implementierung, um die Fragments refreshen zu können ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/c7d85710f7b31eeb8b8afcd0ee6dd3a3169ed632)) |
 | Dialog, der aufgerufen wird, wenn der FloatingActionButton betätigt wird (neuer Task) | 8 | 2 | 6 |([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/7c6466f95f21c718d453010a7932c52db7da6cd4)) |
-| Anbindung an Gmail-API | 4 | 3 | 1 | Noch nicht fertig, Stunden werden noch ergänzt ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/dccd7bd70501f738769ed08bd25eee3a116fb3f5)) |
-| Automatisch SMS versenden mit Location | 2 | 2 | 0 | Noch nicht fertig, Stunden werden noch ergänzt ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/dccd7bd70501f738769ed08bd25eee3a116fb3f5)) |
-| Summe | 45 h | 21,5 h | 23,5 h | - |
+| Anbindung an Gmail-API | 8 | 5 | 3 | ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/8d371806e78acce149787ce9b619b18ea8723f13)) |
+| Automatisch SMS versenden mit Location | 5 | 2 | 3 | ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/8d371806e78acce149787ce9b619b18ea8723f13)) |
+| Alarm Manager | 3 | 1 | 2 | ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/8d371806e78acce149787ce9b619b18ea8723f13)) |
+| Automatisch Antworten für SMS | 3 | 1 | 2 | ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/5f6f866873f2c2cdf014191061354828179a9470)) |
+| Notifications | 3 | 3 | 0 | ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/bb3a9d55afc1f1457e9a1e0ea92a1aad61e5a9a1)) |
+| Dark Theme | 3 | 3 | 0 | Nicht fertig, Probleme mit DialogFragment |
+| Summe | 64 h | 31,5 h | 32,5 h | - |
