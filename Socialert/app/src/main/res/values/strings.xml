@@ -32,4 +32,6 @@
     <string name="variable_address">Adresse</string>
     <string name="change_account">Ändern</string>
     <string name="tv_account">Absender: </string>
+    <string name="channel_name">SocialertNotificationChannel</string>
+    <string name="channel_description">Sends notification whenever a task has finished</string>
 </resources>

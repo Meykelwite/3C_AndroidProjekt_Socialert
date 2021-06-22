@@ -1,9 +1,11 @@
 package net.htlgrieskirchen.pos.dreic.socialert.auto_reply_task.sms;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -12,18 +14,23 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import net.htlgrieskirchen.pos.dreic.socialert.BaseActivity;
 import net.htlgrieskirchen.pos.dreic.socialert.GetAddressTask;
+import net.htlgrieskirchen.pos.dreic.socialert.R;
 import net.htlgrieskirchen.pos.dreic.socialert.Variables;
+import net.htlgrieskirchen.pos.dreic.socialert.auto_reply_task.AutoReplyTask;
 import net.htlgrieskirchen.pos.dreic.socialert.auto_reply_task.AutoReplyTaskActivity;
 import net.htlgrieskirchen.pos.dreic.socialert.auto_reply_task.AutoReplyTaskManager;
+import net.htlgrieskirchen.pos.dreic.socialert.auto_reply_task.DetailActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -101,6 +108,7 @@ public class StaticSMSReceiver extends BroadcastReceiver {
                                 if (autoReplyTaskActivity != null) {
                                     autoReplyTaskActivity.refresh();
                                 }
+                                showNotification(context, task);
                             }
                         }
                     }
@@ -131,4 +139,43 @@ public class StaticSMSReceiver extends BroadcastReceiver {
         lat = location == null ? -1 : location.getLatitude();
         lon = location == null ? -1 : location.getLongitude();
     }
+
+    private void showNotification(Context context, AutoReplyTask task) {
+        String text = getNotificationText(task);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                context, BaseActivity.CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_baseline_reply_24)
+                .setColor(Color.MAGENTA)
+                .setContentTitle(context.getString(R.string.navigation_drawer_title_2))
+                .setContentText(text)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(text))
+                .setWhen(System.currentTimeMillis())
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                // Set the intent that will fire when the user taps the notification
+                .setContentIntent(createDetailActivityIntent(context, task))
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        // notificationId is a unique int for each notification that you must define
+        int notificationId = task.hashCode();
+        notificationManager.notify(notificationId, builder.build());
+    }
+
+    private String getNotificationText(AutoReplyTask task) {
+        return "SMS Task an " + task.getReceiverFormatted() + " wurde abgeschlossen!";
+    }
+
+    // Erzeugen der Tap-Action für die Notifications
+    private PendingIntent createDetailActivityIntent(Context context, AutoReplyTask task) {
+        Intent intent = new Intent(context, DetailActivity.class);
+        intent.putExtra("task", task);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        // https://developer.android.com/reference/android/content/Intent#FLAG_ACTIVITY_NEW_TASK
+        // If set, this activity will become the start of a new task on this history stack
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        return pendingIntent;
+    }
+
 }
