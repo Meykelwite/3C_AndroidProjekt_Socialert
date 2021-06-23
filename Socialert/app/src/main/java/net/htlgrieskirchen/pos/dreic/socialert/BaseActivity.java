@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -33,6 +34,7 @@ public class BaseActivity extends AppCompatActivity
 
     public static final String CHANNEL_ID = "12345678";
     public static boolean showNotifications;
+    public static boolean darkMode;
     private SharedPreferences prefs;
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
 
@@ -49,6 +51,14 @@ public class BaseActivity extends AppCompatActivity
         setContentView(R.layout.activity_base);
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+//        if(AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES)
+//        {
+//            setTheme(R.style.Theme_Dark);
+//        } else
+//        {
+//            setTheme(R.style.Theme_Socialert);
+//        }
 
         fabOpen = AnimationUtils.loadAnimation
                 (this, R.anim.fab_open);
@@ -73,6 +83,7 @@ public class BaseActivity extends AppCompatActivity
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         initShowNotifications();
+//        initDarkMode();
         preferenceChangeListener = (sharedPrefs, key) -> preferenceChanged(sharedPrefs, key);
         prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
 
@@ -86,6 +97,15 @@ public class BaseActivity extends AppCompatActivity
             }
             Toast.makeText(this, "Notification Einstellung wurde geändert!", Toast.LENGTH_SHORT).show();
         }
+//        if ("dark_mode_preference".equals(key)) {
+//            darkMode = prefs.getBoolean("dark_mode_preference", false);
+//            if (darkMode) {
+//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+//            } else {
+//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+//            }
+//            Toast.makeText(this, "Dark Mode Einstellung wurde geändert!", Toast.LENGTH_SHORT).show();
+//        }
     }
 
     private void initShowNotifications() {
@@ -94,6 +114,15 @@ public class BaseActivity extends AppCompatActivity
             createNotificationChannel();
         }
     }
+
+//    private void initDarkMode() {
+//        darkMode = prefs.getBoolean("dark_mode_preference", false);
+//        if (darkMode) {
+//            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+//        } else {
+//            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+//        }
+//    }
 
     private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
