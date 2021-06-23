@@ -14,5 +14,5 @@
 | Alarm Manager | 3 | 1 | 2 | ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/8d371806e78acce149787ce9b619b18ea8723f13)) |
 | Automatisch Antworten für SMS | 3 | 1 | 2 | ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/5f6f866873f2c2cdf014191061354828179a9470)) |
 | Notifications | 3 | 3 | 0 | ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/bb3a9d55afc1f1457e9a1e0ea92a1aad61e5a9a1)) |
-| Dark Theme | 3 | 3 | 0 | Nicht fertig, Probleme mit DialogFragment |
+| Dark Theme | 3 | 3 | 0 | Nicht fertig, Probleme mit DialogFragment ([Commit](https://github.com/Meykelwite/3C_AndroidProjekt_Socialert/commit/63504f91ded7d2d89b20f6ab9808f6abc7889cad)) |
 | Summe | 64 h | 31,5 h | 32,5 h | - |
